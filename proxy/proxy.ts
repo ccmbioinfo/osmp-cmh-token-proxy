@@ -1,13 +1,16 @@
 import { ClientRequest, createServer } from "http";
 import { createProxyServer } from "http-proxy";
 // import { verify } from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const LISTEN_PORT = 9000;
-const TARGET_ADDRESS = "127.0.0.1";
-const TARGET_PORT = 5000;
+dotenv.config();
 
-const PT_TOKEN = "superdupersecret";
-const EXPECTED_GENE42_SECRET = "something_in_base_64";
+const LISTEN_PORT = process.env.LISTEN_PORT;
+const TARGET_ADDRESS = process.env.TARGET_ADDRESS;
+const TARGET_PORT = process.env.TARGET_PORT;
+
+const PT_AUTHORIZATION = process.env.PT_AUTHORIZATION;
+const EXPECTED_GENE42_SECRET = process.env.PT_SECRET;
 
 var proxy = createProxyServer();
 
@@ -48,7 +51,7 @@ function isOSMPRequest(proxyReq: ClientRequest) {
 proxy.on("proxyReq", function (proxyReq, req, res, options) {
   if (isOSMPRequest(proxyReq)) {
     proxyReq.removeHeader("Authorization");
-    proxyReq.setHeader("Authorization", `Basic ${PT_TOKEN}`);
+    proxyReq.setHeader("Authorization", `Basic ${PT_AUTHORIZATION}`);
   }
 });
 
