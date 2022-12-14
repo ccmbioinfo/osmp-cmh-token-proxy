@@ -1,0 +1,27 @@
+{
+  "name": "osmp-cmh-auth-proxy",
+  "version": "1.0.0",
+  "description": "A small proxy server for swapping authorization headers in OSMP requests to PhenoTips on CMH",
+  "main": "proxy.js",
+  "private": "true",
+  "scripts": {
+    "build": "tsc --build .",
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "lint": "eslint --max-warnings=0 .",
+    "start": "ts-node-dev proxy.ts",
+    "test": "jest"
+  },
+  "author": "Mackenzie Frew",
+  "license": "ISC",
+  "dependencies": {
+    "@types/http-proxy": "^1.17.9",
+    "@types/jsonwebtoken": "^8.5.9",
+    "http": "^0.0.1-security",
+    "http-proxy": "^1.18.1",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3"
+  }
+}
