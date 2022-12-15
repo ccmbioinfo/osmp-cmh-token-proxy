@@ -1,16 +1,22 @@
 import { ClientRequest, createServer } from "http";
 import { createProxyServer } from "http-proxy";
-// import { verify } from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const LISTEN_PORT = process.env.LISTEN_PORT;
-const TARGET_ADDRESS = process.env.TARGET_ADDRESS;
-const TARGET_PORT = process.env.TARGET_PORT;
+const LISTEN_HOST = process.env.LISTEN_HOST!;
+const LISTEN_PORT = parseInt(process.env.LISTEN_PORT!);
+const TARGET_HOST = process.env.TARGET_HOST!;
+const TARGET_PORT = parseInt(process.env.TARGET_PORT!);
 
 const PT_AUTHORIZATION = process.env.PT_AUTHORIZATION;
 const EXPECTED_GENE42_SECRET = process.env.PT_SECRET;
+
+if (PT_AUTHORIZATION === undefined || PT_AUTHORIZATION === "")
+  throw Error("PT_AUTHORIZATION not set in env!");
+
+if (EXPECTED_GENE42_SECRET === undefined || EXPECTED_GENE42_SECRET === "")
+  throw Error("PT_SECRET not set in env!");
 
 var proxy = createProxyServer();
 
@@ -57,8 +63,12 @@ proxy.on("proxyReq", function (proxyReq, req, res, options) {
 
 var server = createServer(function (req, res) {
   proxy.web(req, res, {
-    target: `${TARGET_ADDRESS}:${TARGET_PORT}`,
+    target: `${TARGET_HOST}:${TARGET_PORT}`,
   });
 });
 
-server.listen(LISTEN_PORT);
+server.listen(LISTEN_PORT, LISTEN_HOST, undefined, () => {
+  console.log(
+    `OSMP-CMH Proxy listening to ${LISTEN_HOST} on port ${LISTEN_PORT}.`
+  );
+});

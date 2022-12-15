@@ -9,7 +9,7 @@
     "format": "prettier --write .",
     "check-format": "prettier --check .",
     "lint": "eslint --max-warnings=0 .",
-    "start": "ts-node-dev proxy.ts",
+    "start": "npm run build && node ",
     "test": "jest"
   },
   "author": "Mackenzie Frew",
@@ -23,6 +23,7 @@
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
     "typescript": "^4.9.3"
   }
 }

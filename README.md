@@ -8,14 +8,19 @@ However, PhenoTips also requires Basic credentials in the Authorization header f
 
 ## Setup
 
+- Make sure that you have `npm` and `node` installed on your machine.
+
 - Copy `proxy/sample.env` to `proxy/.env` and fill out each variable as described below:
 
   - `NODE_ENV` : Leave as `production` by default. Set to `development` for debugging.
+  - `LISTEN_HOST` : The IP address of the network interface you want to listen on.
   - `LISTEN_PORT` : The port that this proxy server will listen for requests on.
-  - `TARGET_ADDRESS` : The IP address to forward requests to. eg. `127.0.0.1`
+  - `TARGET_HOST` : The IP address to forward requests to. eg. `127.0.0.1`
   - `TARGET_PORT` : The port for the address to forward requests to.
   - `PT_AUTHORIZATION` : OSMP's base64-encoded Basic credentials for CMH PhenoTips.
   - `PT_SECRET` : Expected `X-Gene42-Secret` header value from OSMP.
+
+- Build and start with `npm run start`.
 
 ## Questions / Considerations
 
