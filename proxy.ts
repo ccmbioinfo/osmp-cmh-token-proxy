@@ -55,18 +55,28 @@ function isOSMPRequest(proxyReq: ClientRequest) {
 }
 
 proxy.on("proxyReq", function (proxyReq, req, res, options) {
-  if (process.env.NODE_ENV === "development") {
-    console.log(JSON.stringify(proxyReq.req));
-  }
   if (isOSMPRequest(proxyReq)) {
     proxyReq.removeHeader("Authorization");
     proxyReq.setHeader("Authorization", `Basic ${PT_AUTHORIZATION}`);
   }
 });
 
+// Additional handlers for dev logging only
+if (process.env.NODE_ENV === "development") {
+  proxy.on("proxyReq", function (proxyReq, req, res, options) {
+    console.log("##### proxyReq #####");
+    console.log(proxyReq);
+  });
+
+  proxy.on("proxyRes", function (proxyRes, req, res) {
+    console.log("##### proxyRes #####");
+    console.log(proxyRes);
+  });
+}
+
 var server = createServer(function (req, res) {
   proxy.web(req, res, {
-    target: `${TARGET_HOST}:${TARGET_PORT}`,
+    target: `http://${TARGET_HOST}:${TARGET_PORT}`,
   });
 });
 
