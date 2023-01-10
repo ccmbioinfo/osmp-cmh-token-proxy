@@ -12,10 +12,10 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "rootDir": ".",
-    "outDir": "build",
+    "outDir": ".",
     "forceConsistentCasingInFileNames": true
   },
   "compileOnSave": true,
-  "exclude": ["node_modules", "*.md", "*.env", "*.json"],
+  "exclude": ["node_modules", "./**/*.js"],
   "include": ["./**/*.ts"]
 }

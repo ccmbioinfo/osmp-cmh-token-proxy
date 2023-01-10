@@ -55,6 +55,9 @@ function isOSMPRequest(proxyReq: ClientRequest) {
 }
 
 proxy.on("proxyReq", function (proxyReq, req, res, options) {
+  if (process.env.NODE_ENV === "development") {
+    console.log(JSON.stringify(proxyReq.req));
+  }
   if (isOSMPRequest(proxyReq)) {
     proxyReq.removeHeader("Authorization");
     proxyReq.setHeader("Authorization", `Basic ${PT_AUTHORIZATION}`);
