@@ -1,10 +1,14 @@
 import { ClientRequest, createServer } from "http";
 import { createProxyServer } from "http-proxy";
 import dotenv from "dotenv";
+import { hostname } from "os";
 
 dotenv.config();
 
-const LISTEN_HOST = process.env.LISTEN_HOST!;
+const LISTEN_HOST =
+  process.env.LISTEN_HOST!.toLowerCase() === "hostname"
+    ? hostname()
+    : process.env.LISTEN_HOST!;
 const LISTEN_PORT = parseInt(process.env.LISTEN_PORT!);
 const TARGET_HOST = process.env.TARGET_HOST!;
 const TARGET_PORT = parseInt(process.env.TARGET_PORT!);

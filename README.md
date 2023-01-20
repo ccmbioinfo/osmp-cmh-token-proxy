@@ -13,7 +13,9 @@ However, PhenoTips also requires Basic credentials in the Authorization header f
 - Copy `proxy/sample.env` to `proxy/.env` and fill out each variable as described below:
 
   - `NODE_ENV` : Leave as `production` by default. Set to `development` for debugging.
-  - `LISTEN_HOST` : The IP address of the network interface you want to listen on.
+  - `LISTEN_HOST` : The IP address or hostname of the network interface you want to listen on.
+    - If you are running the proxy in a **Docker container**, then set to `HOSTNAME`. The node proxy will use the container hostname as a listen host, which resolves to the container's network interface.
+    - `0.0.0.0` will work, but the server will listen to every network interface available, which is not advisable.
   - `LISTEN_PORT` : The port that this proxy server will listen for requests on.
   - `TARGET_HOST` : The IP address to forward requests to. eg. `127.0.0.1`
   - `TARGET_PORT` : The port for the address to forward requests to.
