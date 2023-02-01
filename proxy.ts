@@ -2,6 +2,9 @@ import { ClientRequest, createServer } from "http";
 import { createProxyServer } from "http-proxy";
 import dotenv from "dotenv";
 import { hostname } from "os";
+import { readFileSync } from "fs";
+
+// ### Environment Variables ###
 
 dotenv.config();
 
@@ -12,6 +15,23 @@ const LISTEN_HOST =
 const LISTEN_PORT = parseInt(process.env.LISTEN_PORT!);
 const TARGET_HOST = process.env.TARGET_HOST!;
 const TARGET_PORT = parseInt(process.env.TARGET_PORT!);
+// Secure iff env var is NOT in list below
+const SECURE = !["undefined", "false"].includes(
+  ("" + process.env.SECURE).toLowerCase()
+);
+
+const KEY =
+  SECURE && process.env.SSL_KEY_PATH
+    ? readFileSync(process.env.SSL_KEY_PATH, "utf-8")
+    : undefined;
+const CERT =
+  SECURE && process.env.SSL_CERT_PATH
+    ? readFileSync(process.env.SSL_CERT_PATH, "utf-8")
+    : undefined;
+const CA =
+  SECURE && process.env.SSL_CA_PATH
+    ? readFileSync(process.env.SSL_CA_PATH, "utf-8")
+    : undefined;
 
 const PT_AUTHORIZATION = process.env.PT_AUTHORIZATION;
 const EXPECTED_GENE42_SECRET = process.env.PT_SECRET;
@@ -22,7 +42,16 @@ if (PT_AUTHORIZATION === undefined || PT_AUTHORIZATION === "")
 if (EXPECTED_GENE42_SECRET === undefined || EXPECTED_GENE42_SECRET === "")
   throw Error("PT_SECRET not set in env!");
 
-var proxy = createProxyServer();
+var proxy = createProxyServer({
+  target: `http${SECURE ? "s" : ""}://${TARGET_HOST}:${TARGET_PORT}`,
+  ssl: SECURE
+    ? {
+        key: KEY,
+        cert: CERT,
+      }
+    : undefined,
+  secure: SECURE,
+});
 
 // Extract <token> from "Authorization: Bearer <token>" header
 // Not currently used. May be used in the future.
@@ -78,14 +107,12 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-var server = createServer(function (req, res) {
-  proxy.web(req, res, {
-    target: `http://${TARGET_HOST}:${TARGET_PORT}`,
-  });
-});
-
-server.listen(LISTEN_PORT, LISTEN_HOST, undefined, () => {
+proxy.on("start", () => {
   console.log(
-    `OSMP-CMH Proxy listening to ${LISTEN_HOST} on port ${LISTEN_PORT}.`
+    `OSMP-CMH Proxy listening to ${LISTEN_HOST} on port ${LISTEN_PORT}. Targetting 'http${
+      SECURE ? "s" : ""
+    }://${TARGET_HOST}:${TARGET_PORT}'...`
   );
 });
+
+proxy.listen(LISTEN_PORT, LISTEN_HOST);

@@ -21,6 +21,15 @@ However, PhenoTips also requires Basic credentials in the Authorization header f
   - `TARGET_PORT` : The port for the address to forward requests to.
   - `PT_AUTHORIZATION` : OSMP's base64-encoded Basic credentials for CMH PhenoTips.
   - `PT_SECRET` : Expected `X-Gene42-Secret` header value from OSMP.
+  - `SECURE` : `true` for HTTPS, `false` for HTTP.
+  - `SSL_CERT_PATH` : Path for certificate file for TLS/SSL if `SECURE` is `true`.
+  - `SSL_KEY_PATH` : Path for private key file for TLS/SSL if `SECURE` is `true`.
+
+- _If you're using HTTPS with Docker, you must do the following_:
+
+  - Decide how to store your SSL secrets and how to pass them to the running Docker container. A few options:
+    - OPTION 1: Create a folder inside this project directory (eg. `ssl/`), place the files in that folder, build the container and update the `SSL_*_PATH` variables accordingly.
+    - OPTION 2: Create a volume containing your SSL secrets, and bind the volume to some location in the container, and update the `SSL_*_PATH` varialbes accordingly. The path will be based on where the mounted directory is _inside the container_.
 
 - Build and start with `npm run start`.
 
