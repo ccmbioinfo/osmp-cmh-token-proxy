@@ -115,4 +115,6 @@ proxy.on("start", () => {
   );
 });
 
+// Types for this are wrong. proxy.listen takes port AND hostname.
+// @ts-ignore
 proxy.listen(LISTEN_PORT, LISTEN_HOST);
