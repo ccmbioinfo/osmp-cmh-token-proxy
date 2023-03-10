@@ -94,6 +94,17 @@ proxy.on("proxyReq", function (proxyReq, req, res, options) {
   }
 });
 
+proxy.on("error", function (err, req, res) {
+  res.end(`
+  Something went wrong while proxying request. Please contact your system administrator.
+
+  ${err.name}
+  ${err.message}
+  `);
+  console.error(`ERROR: ${err.name} - '${err.message}'`);
+  console.error(err.stack);
+});
+
 // Additional handlers for dev logging only
 if (process.env.NODE_ENV === "development") {
   proxy.on("proxyReq", function (proxyReq, req, res, options) {
