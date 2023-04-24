@@ -74,6 +74,13 @@ function headerIsString(
   return typeof header === "string";
 }
 
+/**
+ * Check whether the request comes from OSMP server.
+ * Conditions:
+ * - Authorization header is present and is a string
+ * - "X-Gene42-Secret" header is present, is a string,
+ *   and matches the EXPECTED_GENE42_SECRET environment variable.
+ */
 function isOSMPRequest(proxyReq: ClientRequest) {
   // Return whether this request is an authorized request from the OSMP server
   const authHeader = proxyReq.getHeader("Authorization");
@@ -84,16 +91,54 @@ function isOSMPRequest(proxyReq: ClientRequest) {
   // Only OSMP has this secret
   if (gene42SecretHeader !== EXPECTED_GENE42_SECRET) return false;
 
+  if (process.env.NODE_ENV === "development") {
+    console.log(`
+    [isOSMPRequest]
+    [Authorization Header]
+    Received: ${authHeader}
+
+    [X-Gene42-Secret Header]
+    Expected: ${EXPECTED_GENE42_SECRET}
+    Actual: ${gene42SecretHeader}
+    `);
+  }
+
   return true;
 }
 
-proxy.on("proxyReq", function (proxyReq, req, res, options) {
+/**
+ * Given a request to the proxy, determine if the request
+ * originated from OSMP, and modify the headers by replacing
+ * the Authorization header with one that is expected by PhenoTips.
+ */
+function modifyOSMPRequest(proxyReq: ClientRequest) {
   if (isOSMPRequest(proxyReq)) {
     proxyReq.removeHeader("Authorization");
     proxyReq.setHeader("Authorization", `Basic ${PT_AUTHORIZATION}`);
   }
+}
+
+// ##### PROXY FUNCTIONS #####
+
+/**
+ * Primary operation of this proxy: modifying requests from OSMP to swap Authorization header
+ */
+proxy.on("proxyReq", function (proxyReq, req, res, options) {
+  if (process.env.NODE_ENV === "development") {
+    console.log("[MAIN proxyReq function]");
+    console.log("Headers Before:");
+    console.log(proxyReq.getHeaders());
+    modifyOSMPRequest(proxyReq);
+    console.log("Headers after:");
+    console.log(proxyReq.getHeaders());
+  } else {
+    modifyOSMPRequest(proxyReq);
+  }
 });
 
+/**
+ * Error logging function for proxy.
+ */
 proxy.on("error", function (err, req, res) {
   res.end(`
   Something went wrong while proxying request. Please contact your system administrator.
@@ -106,18 +151,21 @@ proxy.on("error", function (err, req, res) {
 });
 
 // Additional handlers for dev logging only
-if (process.env.NODE_ENV === "development") {
-  proxy.on("proxyReq", function (proxyReq, req, res, options) {
-    console.log("##### proxyReq #####");
-    console.log(proxyReq);
-  });
+// if (process.env.NODE_ENV === "development") {
+//   proxy.on("proxyReq", function (proxyReq, req, res, options) {
+//     console.log("##### proxyReq #####");
+//     console.log(proxyReq);
+//   });
 
-  proxy.on("proxyRes", function (proxyRes, req, res) {
-    console.log("##### proxyRes #####");
-    console.log(proxyRes);
-  });
-}
+//   proxy.on("proxyRes", function (proxyRes, req, res) {
+//     console.log("##### proxyRes #####");
+//     console.log(proxyRes);
+//   });
+// }
 
+/**
+ * Log message on proxy start.
+ */
 proxy.on("start", () => {
   console.log(
     `OSMP-CMH Proxy listening to ${LISTEN_HOST} on port ${LISTEN_PORT}. Targetting 'http${
