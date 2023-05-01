@@ -77,31 +77,26 @@ function headerIsString(
 /**
  * Check whether the request comes from OSMP server.
  * Conditions:
- * - Authorization header is present and is a string
  * - "X-Gene42-Secret" header is present, is a string,
  *   and matches the EXPECTED_GENE42_SECRET environment variable.
  */
 function isOSMPRequest(proxyReq: ClientRequest) {
   // Return whether this request is an authorized request from the OSMP server
-  const authHeader = proxyReq.getHeader("Authorization");
-  if (!headerIsString(authHeader)) return false;
   const gene42SecretHeader = proxyReq.getHeader("X-Gene42-Secret");
-  if (!headerIsString(gene42SecretHeader)) return false;
-
-  // Only OSMP has this secret
-  if (gene42SecretHeader !== EXPECTED_GENE42_SECRET) return false;
 
   if (process.env.NODE_ENV === "development") {
     console.log(`
     [isOSMPRequest]
-    [Authorization Header]
-    Received: ${authHeader}
-
     [X-Gene42-Secret Header]
     Expected: ${EXPECTED_GENE42_SECRET}
     Actual: ${gene42SecretHeader}
     `);
   }
+
+  if (!headerIsString(gene42SecretHeader)) return false;
+
+  // Only OSMP has this secret
+  if (gene42SecretHeader !== EXPECTED_GENE42_SECRET) return false;
 
   return true;
 }

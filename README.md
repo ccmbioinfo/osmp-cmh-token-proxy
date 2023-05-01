@@ -41,7 +41,9 @@ However, PhenoTips also requires Basic credentials in the Authorization header f
 
 - **Q: Should we set a cookie for OSMP / non-OSMP requests?**
 
-  - The only check is for whether the `X-Gene42-Secret` header exists, if the value matches what we expect, and if the `Authorization` header exists. Checking for cookies is effectively more instructions and thus a longer runtime.
+  - The only check is for whether the `X-Gene42-Secret` header exists and if the value matches what we expect. Checking for cookies is effectively more instructions and thus a longer runtime.
+
+    - We initially checked if the `Authorization` header was present. However, the Azure proxy seems to strip Auth headers. This check is also not totally necessary since it's up to the Azure proxy to validate the Auth header anyways.
 
 - **Q: Should we validate the Bearer token provided for the Azure proxy?**
   - This would be an excellent way to validate OSMP requests, since we can validate the token with Azure's public key and check the client ID. However, this requires sending an HTTP request to Azure to get the public key, adding wait time. We know that only OSMP has the specific `X-Gene42-Secret` value, so checking this header is sufficient.
